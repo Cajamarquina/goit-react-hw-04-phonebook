@@ -2,41 +2,26 @@ import React, { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import ContactForm from './ContactForm';
 import ContactList from './ContactList';
-import Filter from './Filter';
 import './App.css';
 
 const App = () => {
-  const [contacts, setContacts] = useState([]);
-  const [filter, setFilter] = useState('');
+  const [contacts, setContacts] = useState(() => {
+    const storedContacts = localStorage.getItem('contacts');
+    return storedContacts ? JSON.parse(storedContacts) : [];
+  });
+
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
 
-  // Load contacts from localStorage using useEffect
-  useEffect(() => {
-    const storedContacts = localStorage.getItem('contacts');
-    if (storedContacts) {
-      setContacts(JSON.parse(storedContacts));
-    }
-  }, []);
-
-  // Save contacts to localStorage when they change using useEffect
-  useEffect(() => {
-    localStorage.setItem('contacts', JSON.stringify(contacts));
-  }, [contacts]);
-
   const handleChange = (e) => {
-    if (e.target.name === 'filter') {
-      setFilter(e.target.value);
-    } else if (e.target.name === 'name') {
+    if (e.target.name === 'name') {
       setName(e.target.value);
     } else if (e.target.name === 'number') {
       setNumber(e.target.value);
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Prevent form submission
-
+  const handleSubmit = () => {
     if (name.trim() === '' || number.trim() === '') {
       alert('Name and number cannot be empty');
       return;
@@ -64,9 +49,9 @@ const App = () => {
     setContacts((prevContacts) => prevContacts.filter((contact) => contact.id !== id));
   };
 
-  const filteredContacts = contacts.filter((contact) =>
-    contact.name.toLowerCase().includes(filter.toLowerCase())
-  );
+  useEffect(() => {
+    localStorage.setItem('contacts', JSON.stringify(contacts));
+  }, [contacts]);
 
   return (
     <div>
@@ -78,8 +63,7 @@ const App = () => {
         handleSubmit={handleSubmit}
       />
       <h2>Contacts</h2>
-      <Filter filter={filter} handleChange={handleChange} />
-      <ContactList contacts={filteredContacts} onDeleteContact={handleDeleteContact} />
+      <ContactList contacts={contacts} onDeleteContact={handleDeleteContact} />
     </div>
   );
 };
