@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { nanoid } from 'nanoid';
 import ContactForm from './ContactForm';
 import ContactList from './ContactList';
+import Filter from './Filter';
 import './App.css';
 
 const App = () => {
@@ -12,6 +13,7 @@ const App = () => {
 
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
+  const [filter, setFilter] = useState('');
 
   const handleChange = (e) => {
     if (e.target.name === 'name') {
@@ -19,6 +21,10 @@ const App = () => {
     } else if (e.target.name === 'number') {
       setNumber(e.target.value);
     }
+  };
+
+  const handleFilterChange = (e) => {
+    setFilter(e.target.value);
   };
 
   const handleSubmit = () => {
@@ -53,6 +59,10 @@ const App = () => {
     localStorage.setItem('contacts', JSON.stringify(contacts));
   }, [contacts]);
 
+  const filteredContacts = contacts.filter((contact) =>
+    contact.name.toLowerCase().includes(filter.toLowerCase())
+  );
+
   return (
     <div>
       <h1>Phonebook</h1>
@@ -63,7 +73,8 @@ const App = () => {
         handleSubmit={handleSubmit}
       />
       <h2>Contacts</h2>
-      <ContactList contacts={contacts} onDeleteContact={handleDeleteContact} />
+      <Filter filter={filter} handleFilterChange={handleFilterChange} />
+      <ContactList contacts={filteredContacts} onDeleteContact={handleDeleteContact} />
     </div>
   );
 };
